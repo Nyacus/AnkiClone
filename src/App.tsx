@@ -20,7 +20,7 @@ export default function App() {
               </svg>
             </div>
             <h1 className="text-xl font-semibold tracking-tight cursor-pointer" onClick={() => setView('dashboard')}>
-              AnkiClone
+              ValentinANKI
             </h1>
           </div>
         </div>

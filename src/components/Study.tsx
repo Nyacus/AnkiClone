@@ -119,22 +119,22 @@ export default function Study({ deckId, onBack }: Props) {
         </div>
 
         {showAnswer && (
-          <div className="w-full grid grid-cols-4 gap-4 mt-8">
-            <button onClick={() => handleGrade('again')} className="flex flex-col items-center p-4 bg-white border border-stone-200 rounded-xl hover:bg-red-50 hover:border-red-200 transition-colors group">
-              <span className="text-red-600 font-bold mb-1 group-hover:scale-110 transition-transform">Again</span>
-              <span className="text-xs text-stone-400">&lt; 10m (1)</span>
+          <div className="w-full grid grid-cols-4 gap-2 sm:gap-4 mt-8">
+            <button onClick={() => handleGrade('again')} className="flex flex-col items-center justify-center p-2 sm:p-4 bg-white border border-stone-200 rounded-xl hover:bg-red-50 hover:border-red-200 transition-colors group">
+              <span className="text-red-600 font-bold text-sm sm:text-base mb-1 group-hover:scale-110 transition-transform">De nuevo</span>
+              <span className="text-[10px] sm:text-xs text-stone-400 text-center">&lt; 10m<br className="sm:hidden"/> (1)</span>
             </button>
-            <button onClick={() => handleGrade('hard')} className="flex flex-col items-center p-4 bg-white border border-stone-200 rounded-xl hover:bg-orange-50 hover:border-orange-200 transition-colors group">
-              <span className="text-orange-600 font-bold mb-1 group-hover:scale-110 transition-transform">Hard</span>
-              <span className="text-xs text-stone-400">{(currentCard.interval * 1.2).toFixed(1)}d (2)</span>
+            <button onClick={() => handleGrade('hard')} className="flex flex-col items-center justify-center p-2 sm:p-4 bg-white border border-stone-200 rounded-xl hover:bg-orange-50 hover:border-orange-200 transition-colors group">
+              <span className="text-orange-600 font-bold text-sm sm:text-base mb-1 group-hover:scale-110 transition-transform">Duro</span>
+              <span className="text-[10px] sm:text-xs text-stone-400 text-center">{(currentCard.interval * 1.2).toFixed(1)}d<br className="sm:hidden"/> (2)</span>
             </button>
-            <button onClick={() => handleGrade('good')} className="flex flex-col items-center p-4 bg-white border border-stone-200 rounded-xl hover:bg-green-50 hover:border-green-200 transition-colors group">
-              <span className="text-green-600 font-bold mb-1 group-hover:scale-110 transition-transform">Good</span>
-              <span className="text-xs text-stone-400">{currentCard.repetitions === 0 ? '1d' : `${Math.round(currentCard.interval * currentCard.easeFactor)}d`} (3)</span>
+            <button onClick={() => handleGrade('good')} className="flex flex-col items-center justify-center p-2 sm:p-4 bg-white border border-stone-200 rounded-xl hover:bg-green-50 hover:border-green-200 transition-colors group">
+              <span className="text-green-600 font-bold text-sm sm:text-base mb-1 group-hover:scale-110 transition-transform">Bien</span>
+              <span className="text-[10px] sm:text-xs text-stone-400 text-center">{currentCard.repetitions === 0 ? '1d' : `${Math.round(currentCard.interval * currentCard.easeFactor)}d`}<br className="sm:hidden"/> (3)</span>
             </button>
-            <button onClick={() => handleGrade('easy')} className="flex flex-col items-center p-4 bg-white border border-stone-200 rounded-xl hover:bg-blue-50 hover:border-blue-200 transition-colors group">
-              <span className="text-blue-600 font-bold mb-1 group-hover:scale-110 transition-transform">Easy</span>
-              <span className="text-xs text-stone-400">{currentCard.repetitions === 0 ? '4d' : `${Math.round(currentCard.interval * currentCard.easeFactor * 1.3)}d`} (4)</span>
+            <button onClick={() => handleGrade('easy')} className="flex flex-col items-center justify-center p-2 sm:p-4 bg-white border border-stone-200 rounded-xl hover:bg-blue-50 hover:border-blue-200 transition-colors group">
+              <span className="text-blue-600 font-bold text-sm sm:text-base mb-1 group-hover:scale-110 transition-transform">Fácil</span>
+              <span className="text-[10px] sm:text-xs text-stone-400 text-center">{currentCard.repetitions === 0 ? '4d' : `${Math.round(currentCard.interval * currentCard.easeFactor * 1.3)}d`}<br className="sm:hidden"/> (4)</span>
             </button>
           </div>
         )}
