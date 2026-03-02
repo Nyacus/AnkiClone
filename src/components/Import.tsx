@@ -1,7 +1,8 @@
 import { useState } from 'react';
 import { db } from '../db';
 import { useLiveQuery } from 'dexie-react-hooks';
-import { ArrowLeft, CheckCircle2 } from 'lucide-react';
+import { ArrowLeft, CheckCircle2, AlertCircle, FileText, Plus, Save, X } from 'lucide-react';
+import { motion, AnimatePresence } from 'motion/react';
 
 interface Props {
   onBack: () => void;
@@ -13,10 +14,10 @@ export default function Import({ onBack, defaultDeckId }: Props) {
   const [selectedDeckId, setSelectedDeckId] = useState<number | ''>(defaultDeckId || '');
   const [tsvData, setTsvData] = useState('');
   const [isImporting, setIsImporting] = useState(false);
-  
+
   const [isCreating, setIsCreating] = useState(false);
   const [newDeckName, setNewDeckName] = useState('');
-  const [message, setMessage] = useState<{type: 'error' | 'success', text: string} | null>(null);
+  const [message, setMessage] = useState<{ type: 'error' | 'success', text: string } | null>(null);
 
   const handleImport = async () => {
     if (!selectedDeckId || !tsvData.trim()) return;
@@ -43,7 +44,6 @@ export default function Import({ onBack, defaultDeckId }: Props) {
       };
 
       if (cols.length === 2) {
-        // EN -> ES and ES -> EN
         newCards.push({
           ...baseCard,
           front: cols[0],
@@ -57,7 +57,6 @@ export default function Import({ onBack, defaultDeckId }: Props) {
           direction: 'ES->EN'
         });
       } else if (cols.length >= 4) {
-        // Front, Back, Direction, Tag
         newCards.push({
           ...baseCard,
           front: cols[0],
@@ -70,11 +69,11 @@ export default function Import({ onBack, defaultDeckId }: Props) {
 
     if (newCards.length > 0) {
       await db.cards.bulkAdd(newCards);
-      setMessage({ type: 'success', text: `¡Importadas ${newCards.length} tarjetas con éxito!` });
+      setMessage({ type: 'success', text: `¡Se han importado ${newCards.length} tarjetas correctamente!` });
       setTsvData('');
       setTimeout(() => onBack(), 2000);
     } else {
-      setMessage({ type: 'error', text: 'No se encontraron pares válidos. Revisa el formato (debe estar separado por tabulaciones).' });
+      setMessage({ type: 'error', text: 'No se detectaron datos válidos. El formato debe ser texto separado por tabuladores.' });
     }
     setIsImporting(false);
   };
@@ -90,84 +89,137 @@ export default function Import({ onBack, defaultDeckId }: Props) {
   };
 
   return (
-    <div className="max-w-3xl mx-auto p-6">
-      <button onClick={onBack} className="flex items-center gap-2 text-stone-500 hover:text-stone-900 mb-6">
-        <ArrowLeft className="w-4 h-4" /> Volver
+    <div className="max-w-4xl mx-auto space-y-8 pb-12">
+      <button
+        onClick={onBack}
+        className="group flex items-center gap-2.5 text-slate-400 hover:text-white font-semibold transition-colors"
+      >
+        <div className="p-2 bg-slate-800/50 rounded-lg group-hover:bg-slate-700 transition-colors">
+          <ArrowLeft className="w-4 h-4" />
+        </div>
+        Volver a mis mazos
       </button>
 
-      <div className="bg-white p-8 rounded-2xl shadow-sm border border-stone-200">
-        <h2 className="text-2xl font-bold text-stone-900 mb-6">Importar Vocabulario</h2>
-        
-        {message && (
-          <div className={`p-4 rounded-lg mb-6 flex items-center gap-3 ${message.type === 'success' ? 'bg-green-50 text-green-800 border border-green-200' : 'bg-red-50 text-red-800 border border-red-200'}`}>
-            {message.type === 'success' && <CheckCircle2 className="w-5 h-5 text-green-600" />}
-            <p className="font-medium">{message.text}</p>
+      <div className="glass-dark p-8 sm:p-12 rounded-[2.5rem] border border-white/10 shadow-2xl">
+        <div className="flex items-center gap-4 mb-10">
+          <div className="p-4 bg-indigo-500/10 rounded-2xl text-indigo-400">
+            <FileText className="w-8 h-8" />
           </div>
-        )}
-
-        <div className="space-y-6">
           <div>
-            <div className="flex justify-between items-center mb-2">
-              <label className="block text-sm font-medium text-stone-700">Selecciona el mazo destino</label>
+            <h2 className="text-3xl font-bold text-white tracking-tight">Importar Vocabulario</h2>
+            <p className="text-slate-400 font-medium tracking-tight">Carga masiva de tarjetas mediante formato TSV.</p>
+          </div>
+        </div>
+
+        <AnimatePresence>
+          {message && (
+            <motion.div
+              initial={{ opacity: 0, height: 0, y: -10 }}
+              animate={{ opacity: 1, height: 'auto', y: 0 }}
+              exit={{ opacity: 0, height: 0, y: -10 }}
+              className={`p-5 rounded-2xl mb-8 flex items-center gap-4 border overflow-hidden ${message.type === 'success'
+                  ? 'bg-emerald-500/10 text-emerald-300 border-emerald-500/20'
+                  : 'bg-red-500/10 text-red-300 border-red-500/20'
+                }`}
+            >
+              {message.type === 'success' ? <CheckCircle2 className="w-6 h-6 shrink-0" /> : <AlertCircle className="w-6 h-6 shrink-0" />}
+              <p className="font-bold tracking-tight">{message.text}</p>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
+        <div className="space-y-10">
+          <div className="space-y-4">
+            <div className="flex justify-between items-center">
+              <label className="block text-xs font-bold text-indigo-400 uppercase tracking-widest">Mazo de destino</label>
               {!isCreating && (
-                <button onClick={() => setIsCreating(true)} className="text-xs font-medium text-indigo-600 hover:text-indigo-700">
-                  + Crear nuevo mazo
+                <button
+                  onClick={() => setIsCreating(true)}
+                  className="text-sm font-bold text-indigo-400 hover:text-indigo-300 transition-colors flex items-center gap-1.5"
+                >
+                  <Plus className="w-4 h-4" /> Crear nuevo
                 </button>
               )}
             </div>
-            
-            {isCreating ? (
-              <form onSubmit={handleCreateDeck} className="flex gap-2 mb-2">
-                <input 
-                  autoFocus
-                  type="text" 
-                  value={newDeckName}
-                  onChange={e => setNewDeckName(e.target.value)}
-                  className="flex-1 p-3 border border-stone-200 rounded-lg bg-stone-50 focus:ring-2 focus:ring-indigo-500 outline-none"
-                  placeholder="Nombre del mazo..."
-                />
-                <button type="submit" disabled={!newDeckName.trim()} className="px-4 py-2 bg-indigo-600 text-white rounded-lg font-medium hover:bg-indigo-700 disabled:opacity-50">
-                  Guardar
-                </button>
-                <button type="button" onClick={() => setIsCreating(false)} className="px-4 py-2 bg-stone-100 text-stone-600 rounded-lg font-medium hover:bg-stone-200">
-                  Cancelar
-                </button>
-              </form>
-            ) : (
-              <select 
-                value={selectedDeckId} 
-                onChange={e => setSelectedDeckId(Number(e.target.value))}
-                className="w-full p-3 border border-stone-200 rounded-lg bg-stone-50 focus:ring-2 focus:ring-indigo-500 outline-none"
-              >
-                <option value="" disabled>-- Elige un mazo --</option>
-                {decks?.map(d => <option key={d.id} value={d.id}>{d.name}</option>)}
-              </select>
-            )}
+
+            <AnimatePresence mode="wait">
+              {isCreating ? (
+                <motion.form
+                  key="create-deck"
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -10 }}
+                  onSubmit={handleCreateDeck}
+                  className="flex flex-col sm:flex-row gap-3"
+                >
+                  <input
+                    autoFocus
+                    type="text"
+                    value={newDeckName}
+                    onChange={e => setNewDeckName(e.target.value)}
+                    className="flex-1 p-4 bg-slate-900/50 border border-white/10 rounded-2xl text-white placeholder-slate-500 focus:ring-2 focus:ring-indigo-500/50 outline-none transition-all"
+                    placeholder="Nombre del nuevo mazo..."
+                  />
+                  <div className="flex gap-2">
+                    <button
+                      type="submit"
+                      disabled={!newDeckName.trim()}
+                      className="flex-1 sm:flex-none px-6 py-4 bg-indigo-600 text-white rounded-2xl font-bold hover:bg-indigo-500 disabled:opacity-40 transition-colors flex items-center justify-center gap-2"
+                    >
+                      <Save className="w-4 h-4" /> Guardar
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setIsCreating(false)}
+                      className="px-6 py-4 bg-slate-800 text-slate-400 rounded-2xl font-bold hover:bg-slate-700 transition-colors flex items-center justify-center"
+                    >
+                      <X className="w-5 h-5" />
+                    </button>
+                  </div>
+                </motion.form>
+              ) : (
+                <motion.select
+                  key="select-deck"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  value={selectedDeckId}
+                  onChange={e => setSelectedDeckId(Number(e.target.value))}
+                  className="w-full p-5 bg-slate-900/50 border border-white/10 rounded-2xl text-white appearance-none focus:ring-2 focus:ring-indigo-500/50 outline-none transition-all cursor-pointer font-medium"
+                >
+                  <option value="" disabled className="bg-slate-900">-- Selecciona un mazo --</option>
+                  {decks?.map(d => <option key={d.id} value={d.id} className="bg-slate-900">{d.name}</option>)}
+                </motion.select>
+              )}
+            </AnimatePresence>
           </div>
 
-          <div>
-            <label className="block text-sm font-medium text-stone-700 mb-2">Pega tu TSV aquí</label>
-            <p className="text-xs text-stone-500 mb-3">
-              Formatos aceptados:<br/>
-              1) <code>Inglés &lt;TAB&gt; Español</code> (Genera 2 tarjetas automáticamente)<br/>
-              2) <code>Front &lt;TAB&gt; Back &lt;TAB&gt; Direction &lt;TAB&gt; Tag</code>
-            </p>
-            <textarea
-              rows={10}
-              value={tsvData}
-              onChange={e => setTsvData(e.target.value)}
-              className="w-full p-4 font-mono text-sm border border-stone-200 rounded-lg bg-stone-50 focus:ring-2 focus:ring-indigo-500 outline-none resize-y"
-              placeholder="apple&#9;manzana&#10;house&#9;casa"
-            />
-          </div>
+          <div className="space-y-6">
+            <div>
+              <label className="block text-xs font-bold text-indigo-400 uppercase tracking-widest mb-4">Contenido TSV</label>
+              <div className="bg-slate-900/40 p-5 rounded-2xl border border-white/5 mb-4">
+                <p className="text-sm text-slate-400 font-medium leading-relaxed">
+                  <span className="text-white font-bold block mb-1">Formatos sugeridos:</span>
+                  1. <code className="bg-slate-800 px-1.5 py-0.5 rounded text-indigo-300">Front [TAB] Back</code> (Crea tarjetas en ambos sentidos)<br />
+                  2. <code className="bg-slate-800 px-1.5 py-0.5 rounded text-indigo-300">Front [TAB] Back [TAB] Dirección [TAB] Etiqueta</code>
+                </p>
+              </div>
+              <textarea
+                rows={8}
+                value={tsvData}
+                onChange={e => setTsvData(e.target.value)}
+                className="w-full p-6 font-mono text-sm bg-slate-900/60 border border-white/10 rounded-[2rem] text-indigo-200 placeholder-slate-600 focus:ring-2 focus:ring-indigo-500/50 outline-none resize-none transition-all"
+                placeholder="palabra&#9;definición&#10;hello&#9;hola"
+              />
+            </div>
 
-          <button 
-            onClick={handleImport}
-            disabled={!selectedDeckId || !tsvData.trim() || isImporting}
-            className="w-full py-3 bg-indigo-600 text-white rounded-lg font-medium hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            {isImporting ? 'Importando...' : !selectedDeckId ? 'Selecciona un mazo primero' : !tsvData.trim() ? 'Pega el texto TSV' : 'Importar Tarjetas'}
-          </button>
+            <button
+              onClick={handleImport}
+              disabled={!selectedDeckId || !tsvData.trim() || isImporting}
+              className="w-full py-5 bg-gradient-to-r from-indigo-600 to-indigo-700 text-white rounded-[2rem] font-bold text-xl shadow-2xl shadow-indigo-600/20 hover:from-indigo-500 hover:to-indigo-600 hover:scale-[1.01] active:scale-[0.99] disabled:opacity-40 disabled:scale-100 disabled:cursor-not-allowed transition-all duration-300"
+            >
+              {isImporting ? 'Procesando datos...' : !selectedDeckId ? 'Falta elegir mazo' : !tsvData.trim() ? 'Pega el texto TSV' : 'Confirmar Importación'}
+            </button>
+          </div>
         </div>
       </div>
     </div>
